@@ -153,7 +153,23 @@
           <button type="submit" class="button">Download Resume (PDF)</button>
           <a href="/" class="button secondary">Back to Form</a>
         </form>
+
+        <p class="note"><small><strong>Note:</strong> If PDF download fails, <a href="#" onclick="downloadHTML(event)">download as HTML</a> or install wkhtmltopdf.</small></p>
       </div>
     </div>
-  </body>
-</html>
+
+    <script>
+      function downloadHTML(event) {
+        event.preventDefault();
+        const html = document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '{{ info.name or "resume" }}_resume.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    </script>

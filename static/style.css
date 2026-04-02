@@ -124,6 +124,21 @@ ul.bullet li, .resume-card li {
   margin-top: 14px;
 }
 
+.note {
+  margin-top: 10px;
+  color: #666;
+  font-size: 13px;
+}
+
+.note a {
+  color: #0b2a69;
+  text-decoration: none;
+}
+
+.note a:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 600px) {
   .container { padding: 16px; }
   button, .button { width: 100%; }
