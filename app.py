@@ -11,24 +11,9 @@ except ImportError:
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'replace-with-a-strong-secret')
 
-# Render / Linux friendly wkhtmltopdf configuration.
-# Don't force Windows-specific path. Use env var if available.
+# No explicit pdfkit.configuration, path not hardcoded.
 PDFKIT_CONFIG = None
-if PDFKIT_AVAILABLE:
-    wkhtmltopdf_path = os.environ.get('WKHTMLTOPDF_PATH')
-    if wkhtmltopdf_path:
-        try:
-            PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
-        except Exception as e:
-            print(f"Warning: wkhtmltopdf path from WKHTMLTOPDF_PATH not valid: {wkhtmltopdf_path}")
-            PDFKIT_CONFIG = None
-    else:
-        # Let pdfkit attempt default Linux path resolution
-        try:
-            PDFKIT_CONFIG = pdfkit.configuration()
-        except Exception as e:
-            print("Warning: wkhtmltopdf not configured by env var and not found in PATH.")
-            PDFKIT_CONFIG = None
+# pdfkit.from_string() will attempt to use system wkhtmltopdf binary via PATH.
 
 
 def parse_form_data(form):
@@ -114,20 +99,32 @@ def download():
 
     try:
         # Generate PDF from HTML using pdfkit with configured wkhtmltopdf path
-        pdf = pdfkit.from_string(
-            resume_html,
-            False,
-            configuration=PDFKIT_CONFIG,
-            options={
-                'page-size': 'A4',
-                'margin-top': '10mm',
-                'margin-bottom': '10mm',
-                'margin-left': '12mm',
-                'margin-right': '12mm',
-                'encoding': 'UTF-8',
-                'enable-local-file-access': None,
-            },
-        )
+        pdf = None
+        try:
+            pdf = pdfkit.from_string(
+                resume_html,
+                False,
+                options={
+                    'page-size': 'A4',
+                    'margin-top': '10mm',
+                    'margin-bottom': '10mm',
+                    'margin-left': '12mm',
+                    'margin-right': '12mm',
+                    'encoding': 'UTF-8',
+                    'enable-local-file-access': None,
+                },
+            )
+        except Exception:
+            # Return None so the app can respond gracefully
+            pdf = None
+
+        if pdf is None:
+            return (
+                "<h2>PDF Generation Failed</h2>"
+                "<p>Unable to generate PDF with wkhtmltopdf.</p>"
+                "<p>Make sure wkhtmltopdf is installed and accessible in PATH.</p>"
+                "<p><a href='/'>← Back to Form</a></p>"
+            ), 500
 
         # Prepare response with PDF file download
         filename_base = info.get('name', 'resume').strip().replace(' ', '_') or 'resume'
@@ -141,12 +138,13 @@ def download():
         error_msg = (
             "<h2>PDF Generation Failed</h2>"
             "<p>wkhtmltopdf executable could not be found or started.</p>"
-            "<p>Check that wkhtmltopdf is installed and available in PATH, or set WKHTMLTOPDF_PATH environment variable.</p>"
+            "<p>Ensure wkhtmltopdf is installed and available in PATH (Linux-compatible)." 
+            "No Windows path is used here.</p>"
             "<p><strong>Install instructions (Linux/Render):</strong></p>"
             "<ul>"
             "<li>Ubuntu/Debian: <code>sudo apt-get install wkhtmltopdf</code></li>"
             "<li>Mac: <code>brew install wkhtmltopdf</code></li>"
-            "<li>Render: add wkhtmltopdf install step in build command or container</li>"
+            "<li>Render: add wkhtmltopdf install step in build command or Docker image</li>"
             "</ul>"
             "<p><a href='/'>← Back to Form</a></p>"
         )
