@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ATS Resume Builder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <h1>ATS-Friendly Resume Builder</h1>
+      <p class="subtitle">Fill in details; generate a polished resume to export as PDF.</p>
+
+      <form method="post" id="resumeForm">
+
+        <section>
+          <h2>Personal Details</h2>
+          <label>Full Name<input name="name" required></label>
+          <label>Email<input name="email" type="email" required></label>
+          <label>Phone<input name="phone" required></label>
+          <label>Location<input name="location"></label>
+          <label>LinkedIn URL<input name="linkedin" placeholder="https://linkedin.com/in/yourname"></label>
+          <label>GitHub URL<input name="github" placeholder="https://github.com/yourname"></label>
+        </section>
+
+        <section>
+          <h2>Career Objective</h2>
+          <label>Objective<textarea name="summary" rows="3"></textarea></label>
+          <label>Target Job Title<input name="job_title"></label>
+        </section>
+
+        <section>
+          <h2>Education</h2>
+          <label>Degree<input name="degree"></label>
+          <label>College / University<input name="institute"></label>
+          <label>Graduation Year<input name="grad_year"></label>
+        </section>
+
+        <section>
+          <h2>Experience / Internship</h2>
+          <div id="experienceContainer" class="dynamic-list">
+            <div class="dynamic-item experience-item">
+              <input name="exp_titles[]" placeholder="Role / Title" />
+              <input name="exp_companies[]" placeholder="Company" />
+              <input name="exp_periods[]" placeholder="Duration" />
+              <textarea name="exp_duties[]" placeholder="Key responsibilities / achievements"></textarea>
+            </div>
+          </div>
+          <button type="button" class="secondary" onclick="addExperience()">Add More Experience</button>
+        </section>
+
+        <section>
+          <h2>Projects</h2>
+          <div id="projectsContainer" class="dynamic-list">
+            <div class="dynamic-item project-item">
+              <input name="project_titles[]" placeholder="Project Title" />
+              <textarea name="project_descs[]" placeholder="Project Description"></textarea>
+              <input name="project_links[]" placeholder="Project Link (GitHub/demo)" />
+            </div>
+          </div>
+          <button type="button" class="secondary" onclick="addProject()">Add More Project</button>
+        </section>
+
+        <section>
+          <h2>Skills</h2>
+          <div id="skillsContainer" class="dynamic-list">
+            <div class="dynamic-item"><input name="skills[]" placeholder="Skill" /></div>
+          </div>
+          <button type="button" class="secondary" onclick="addSkill()">Add More Skill</button>
+        </section>
+
+        <section>
+          <h2>Certifications / Courses</h2>
+          <div id="certContainer" class="dynamic-list">
+            <div class="dynamic-item"><input name="certifications[]" placeholder="Certification / Course" /></div>
+          </div>
+          <button type="button" class="secondary" onclick="addCertification()">Add More</button>
+        </section>
+
+        <section>
+          <h2>Extra Curricular Activities</h2>
+          <div id="extrasContainer" class="dynamic-list">
+            <div class="dynamic-item"><input name="extras[]" placeholder="Activity / Clubs / Awards" /></div>
+          </div>
+          <button type="button" class="secondary" onclick="addExtra()">Add More Activity</button>
+        </section>
+
+        <button type="submit">Generate Resume</button>
+      </form>
+    </div>
+
+    <script>
+      function addInput(containerId, html) {
+        const container = document.getElementById(containerId);
+        const item = document.createElement('div');
+        item.className = 'dynamic-item';
+        item.innerHTML = html;
+        container.appendChild(item);
+      }
+
+      function addExperience() {
+        addInput('experienceContainer',
+          '<input name="exp_titles[]" placeholder="Role / Title" />' +
+          '<input name="exp_companies[]" placeholder="Company" />' +
+          '<input name="exp_periods[]" placeholder="Duration" />' +
+          '<textarea name="exp_duties[]" placeholder="Key responsibilities / achievements"></textarea>'
+        );
+      }
+
+      function addProject() {
+        addInput('projectsContainer',
+          '<input name="project_titles[]" placeholder="Project Title" />' +
+          '<textarea name="project_descs[]" placeholder="Project Description"></textarea>' +
+          '<input name="project_links[]" placeholder="Project Link (GitHub/demo)" />'
+        );
+      }
+
+      function addSkill() {
+        addInput('skillsContainer', '<input name="skills[]" placeholder="Skill" />');
+      }
+
+      function addCertification() {
+        addInput('certContainer', '<input name="certifications[]" placeholder="Certification / Course" />');
+      }
+
+      function addExtra() {
+        addInput('extrasContainer', '<input name="extras[]" placeholder="Activity / Clubs / Awards" />');
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDF Resume</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="container resume-card" style="padding:24px;">
+      <div class="resume-header">
+        <h1>{{ info.name or 'YOUR NAME' }}</h1>
+        <p class="contact">
+          {{ info.email }} | {{ info.phone }}
+          {% if info.location %} | {{ info.location }}{% endif %}
+          {% if info.linkedin %} | {{ info.linkedin }}{% endif %}
+          {% if info.github %} | {{ info.github }}{% endif %}
+        </p>
+      </div>
+
+      {% if info.summary %}
+      <section>
+        <h3>Career Objective</h3>
+        <p>{{ info.summary }}</p>
+      </section>
+      {% endif %}
+
+      {% if info.degree or info.institute or info.grad_year %}
+      <section>
+        <h3>Education</h3>
+        <p>{{ info.degree }}{% if info.institute %} | {{ info.institute }}{% endif %}{% if info.grad_year %} | {{ info.grad_year }}{% endif %}</p>
+      </section>
+      {% endif %}
+
+      {% if info.experience %}
+      <section>
+        <h3>Experience / Internship</h3>
+        {% for e in info.experience %}
+        <div class="section-item">
+          <strong>{{ e.title }}</strong> | {{ e.company }} | {{ e.period }}
+          <p>{{ e.description }}</p>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      {% if info.projects %}
+      <section>
+        <h3>Projects</h3>
+        {% for p in info.projects %}
+        <div class="section-item">
+          <p><strong>{{ p.title }}</strong>{% if p.link %} - <a href="{{ p.link }}" target="_blank">View Project</a>{% endif %}</p>
+          <p>{{ p.description }}</p>
+        </div>
+        {% endfor %}
+      </section>
+      {% endif %}
+
+      {% if info.skills %}
+      <section>
+        <h3>Skills</h3>
+        <ul class="grid-list">
+          {% for s in info.skills %}
+          <li>{{ s }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      {% if info.certifications %}
+      <section>
+        <h3>Certifications / Courses</h3>
+        <ul class="bullet">
+          {% for c in info.certifications %}
+          <li>{{ c }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      {% if info.extra_curricular %}
+      <section>
+        <h3>Extra Curricular Activities</h3>
+        <ul class="bullet">
+          {% for e in info.extra_curricular %}
+          <li>{{ e }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      {% if info.achievements %}
+      <section>
+        <h3>Achievements</h3>
+        <ul class="bullet">
+          {% for a in info.achievements %}
+          <li>{{ a }}</li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    </div>
+  </body>
+</html>

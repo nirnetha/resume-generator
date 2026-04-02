@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Professional Resume Preview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container resume-preview">
+      <div class="resume-card">
+        <div class="resume-header">
+          <h1>{{ info.name or 'YOUR NAME' }}</h1>
+          <p class="contact">
+            {{ info.email }} | {{ info.phone }}
+            {% if info.location %} | {{ info.location }}{% endif %}
+            {% if info.linkedin %} | <a href="{{ info.linkedin }}" target="_blank">LinkedIn</a>{% endif %}
+            {% if info.github %} | <a href="{{ info.github }}" target="_blank">GitHub</a>{% endif %}
+          </p>
+        </div>
+
+        {% if info.summary %}
+        <section>
+          <h3>Career Objective</h3>
+          <p>{{ info.summary }}</p>
+        </section>
+        {% endif %}
+
+        {% if info.degree or info.institute or info.grad_year %}
+        <section>
+          <h3>Education</h3>
+          <p>{{ info.degree }}{% if info.institute %} | {{ info.institute }}{% endif %}{% if info.grad_year %} | {{ info.grad_year }}{% endif %}</p>
+        </section>
+        {% endif %}
+
+        {% if info.experience %}
+        <section>
+          <h3>Experience / Internship</h3>
+          {% for e in info.experience %}
+            <div class="section-item">
+              <strong>{{ e.title }}</strong> | {{ e.company }} | {{ e.period }}
+              {% if e.description %}
+              <p>{{ e.description }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </section>
+        {% endif %}
+
+        {% if info.projects %}
+        <section>
+          <h3>Projects</h3>
+          {% for p in info.projects %}
+            <div class="section-item">
+              <strong>{{ p.title }}</strong>
+              {% if p.link %}
+                - <a href="{{ p.link }}" target="_blank">Link</a>
+              {% endif %}
+              {% if p.description %}
+                <p>{{ p.description }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </section>
+        {% endif %}
+
+        {% if info.skills %}
+        <section>
+          <h3>Skills</h3>
+          <ul class="grid-list">
+            {% for s in info.skills %}
+              <li>{{ s }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        {% if info.certifications %}
+        <section>
+          <h3>Certifications / Courses</h3>
+          <ul class="bullet">
+            {% for c in info.certifications %}
+              <li>{{ c }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        {% if info.extra_curricular %}
+        <section>
+          <h3>Extra Curricular Activities</h3>
+          <ul class="bullet">
+            {% for e in info.extra_curricular %}
+              <li>{{ e }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        {% if info.achievements %}
+        <section>
+          <h3>Achievements</h3>
+          <ul class="bullet">
+            {% for a in info.achievements %}
+              <li>{{ a }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('download') }}" class="download-form">
+          <input type="hidden" name="name" value="{{ info.name }}" />
+          <input type="hidden" name="email" value="{{ info.email }}" />
+          <input type="hidden" name="phone" value="{{ info.phone }}" />
+          <input type="hidden" name="location" value="{{ info.location }}" />
+          <input type="hidden" name="linkedin" value="{{ info.linkedin }}" />
+          <input type="hidden" name="github" value="{{ info.github }}" />
+          <input type="hidden" name="job_title" value="{{ info.job_title }}" />
+          <input type="hidden" name="summary" value="{{ info.summary }}" />
+          <input type="hidden" name="degree" value="{{ info.degree }}" />
+          <input type="hidden" name="institute" value="{{ info.institute }}" />
+          <input type="hidden" name="grad_year" value="{{ info.grad_year }}" />
+
+          {% for e in info.experience %}
+            <input type="hidden" name="exp_titles[]" value="{{ e.title }}" />
+            <input type="hidden" name="exp_companies[]" value="{{ e.company }}" />
+            <input type="hidden" name="exp_periods[]" value="{{ e.period }}" />
+            <input type="hidden" name="exp_duties[]" value="{{ e.description }}" />
+          {% endfor %}
+
+          {% for p in info.projects %}
+            <input type="hidden" name="project_titles[]" value="{{ p.title }}" />
+            <input type="hidden" name="project_descs[]" value="{{ p.description }}" />
+            <input type="hidden" name="project_links[]" value="{{ p.link }}" />
+          {% endfor %}
+
+          {% for s in info.skills %}
+            <input type="hidden" name="skills[]" value="{{ s }}" />
+          {% endfor %}
+
+          {% for c in info.certifications %}
+            <input type="hidden" name="certifications[]" value="{{ c }}" />
+          {% endfor %}
+
+          {% for e in info.extra_curricular %}
+            <input type="hidden" name="extras[]" value="{{ e }}" />
+          {% endfor %}
+
+          {% for a in info.achievements %}
+            <input type="hidden" name="achievements[]" value="{{ a }}" />
+          {% endfor %}
+
+          <button type="submit" class="button">Download Resume (PDF)</button>
+          <a href="/" class="button secondary">Back to Form</a>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

@@ -118,13 +118,40 @@ def build_resume(info):
             resume += f",  {info['grad_year']}"
         resume += "\n"
 
-    # --- Projects ---  ✅ NEW SECTION
-    if info["projects"]:
+    # --- Projects ---
+    if info.get("projects"):
         resume += section("PROJECTS")
-        resume += f"\n  * {info['projects']}\n"
+        if isinstance(info["projects"], list):
+            for p in info["projects"]:
+                title = p.get('title', '').strip()
+                desc = p.get('description', '').strip()
+                if title and desc:
+                    resume += f"\n  * {title}: {desc}"
+                elif title:
+                    resume += f"\n  * {title}"
+                elif desc:
+                    resume += f"\n  * {desc}"
+        else:
+            resume += f"\n  * {info['projects']}\n"
+
+    # --- Trainings/Courses ---
+    trainings = info.get("trainings", [])
+    if trainings:
+        resume += section("TRAININGS / COURSES")
+        for t in trainings:
+            resume += f"\n  * {t}"
+        resume += "\n"
+
+    # --- Extra Curricular Activities ---
+    extras = info.get("extra_curricular", [])
+    if extras:
+        resume += section("EXTRA CURRICULAR ACTIVITIES")
+        for e in extras:
+            resume += f"\n  * {e}"
+        resume += "\n"
 
     # --- Achievements ---
-    if info["achievements"]:
+    if info.get("achievements"):
         resume += section("ACHIEVEMENTS")
         for item in info["achievements"]:
             resume += f"\n  * {item}"
