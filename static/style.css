@@ -143,3 +143,43 @@ ul.bullet li, .resume-card li {
   .container { padding: 16px; }
   button, .button { width: 100%; }
 }
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .container, .resume-card {
+    width: auto;
+    box-shadow: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .no-print,
+  .button.secondary,
+  .subtitle,
+  .note,
+  .download-form {
+    display: none !important;
+  }
+
+  .resume-card {
+    border: 0;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .resume-card section {
+    page-break-inside: avoid;
+  }
+
+  h1, h2, h3, p, li {
+    color: #000;
+  }
+}
