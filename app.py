@@ -11,23 +11,24 @@ except ImportError:
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'replace-with-a-strong-secret')
 
-# Configure pdfkit with explicit wkhtmltopdf path
-# Default Windows path: C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe
-# Can be overridden with environment variable WKHTMLTOPDF_PATH
-WKHTMLTOPDF_PATH = (
-    os.environ.get('WKHTMLTOPDF_PATH') or
-    r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-)
-
+# Render / Linux friendly wkhtmltopdf configuration.
+# Don't force Windows-specific path. Use env var if available.
 PDFKIT_CONFIG = None
 if PDFKIT_AVAILABLE:
-    try:
-        # Create pdfkit configuration with the specified wkhtmltopdf path
-        PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
-    except Exception as e:
-        # Configuration created but path may not exist yet
-        print(f"Warning: pdfkit configuration created, but wkhtmltopdf may not be at: {WKHTMLTOPDF_PATH}")
-        PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+    wkhtmltopdf_path = os.environ.get('WKHTMLTOPDF_PATH')
+    if wkhtmltopdf_path:
+        try:
+            PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+        except Exception as e:
+            print(f"Warning: wkhtmltopdf path from WKHTMLTOPDF_PATH not valid: {wkhtmltopdf_path}")
+            PDFKIT_CONFIG = None
+    else:
+        # Let pdfkit attempt default Linux path resolution
+        try:
+            PDFKIT_CONFIG = pdfkit.configuration()
+        except Exception as e:
+            print("Warning: wkhtmltopdf not configured by env var and not found in PATH.")
+            PDFKIT_CONFIG = None
 
 
 def parse_form_data(form):
@@ -136,20 +137,17 @@ def download():
         return response
 
     except OSError as e:
-        # wkhtmltopdf executable not found at configured path
+        # wkhtmltopdf not available or not executable
         error_msg = (
             "<h2>PDF Generation Failed</h2>"
-            "<p><strong>wkhtmltopdf not found at:</strong></p>"
-            f"<p><code>{WKHTMLTOPDF_PATH}</code></p>"
-            "<p><strong>Installation Instructions:</strong></p>"
+            "<p>wkhtmltopdf executable could not be found or started.</p>"
+            "<p>Check that wkhtmltopdf is installed and available in PATH, or set WKHTMLTOPDF_PATH environment variable.</p>"
+            "<p><strong>Install instructions (Linux/Render):</strong></p>"
             "<ul>"
-            f"<li><strong>Windows:</strong> Download from <a href='https://wkhtmltopdf.org/download.html' target='_blank'>wkhtmltopdf.org</a> "
-            f"and install to <code>C:\\Program Files\\wkhtmltopdf</code></li>"
-            "<li><strong>Or set environment variable:</strong> <code>set WKHTMLTOPDF_PATH=C:\\your\\path\\wkhtmltopdf.exe</code></li>"
-            "<li><strong>Mac:</strong> <code>brew install wkhtmltopdf</code></li>"
-            "<li><strong>Linux:</strong> <code>sudo apt-get install wkhtmltopdf</code></li>"
+            "<li>Ubuntu/Debian: <code>sudo apt-get install wkhtmltopdf</code></li>"
+            "<li>Mac: <code>brew install wkhtmltopdf</code></li>"
+            "<li>Render: add wkhtmltopdf install step in build command or container</li>"
             "</ul>"
-            "<p>After installation, restart this app and try downloading again.</p>"
             "<p><a href='/'>← Back to Form</a></p>"
         )
         return error_msg, 500
