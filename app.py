@@ -1,19 +1,8 @@
 import os
-from flask import Flask, render_template, request, make_response, url_for
-
-try:
-    import pdfkit
-    PDFKIT_AVAILABLE = True
-except ImportError:
-    pdfkit = None
-    PDFKIT_AVAILABLE = False
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'replace-with-a-strong-secret')
-
-# No explicit pdfkit.configuration, path not hardcoded.
-PDFKIT_CONFIG = None
-# pdfkit.from_string() will attempt to use system wkhtmltopdf binary via PATH.
 
 
 def parse_form_data(form):
@@ -81,84 +70,6 @@ def index():
         return render_template('resume.html', info=info)
 
     return render_template('index.html')
-
-
-@app.route('/download', methods=['POST'])
-def download():
-    """Generate and download resume as PDF."""
-    if not PDFKIT_AVAILABLE:
-        return (
-            "<h2>PDF Generation Not Available</h2>"
-            "<p>The pdfkit Python package is not installed.</p>"
-            "<p>Install it with: <code>pip install pdfkit</code></p>"
-            "<p><a href='/'>← Back to Form</a></p>"
-        ), 500
-
-    info = parse_form_data(request.form)
-    resume_html = render_template('resume_pdf.html', info=info)
-
-    try:
-        # Generate PDF from HTML using pdfkit with configured wkhtmltopdf path
-        pdf = None
-        try:
-            pdf = pdfkit.from_string(
-                resume_html,
-                False,
-                options={
-                    'page-size': 'A4',
-                    'margin-top': '10mm',
-                    'margin-bottom': '10mm',
-                    'margin-left': '12mm',
-                    'margin-right': '12mm',
-                    'encoding': 'UTF-8',
-                    'enable-local-file-access': None,
-                },
-            )
-        except Exception:
-            # Return None so the app can respond gracefully
-            pdf = None
-
-        if pdf is None:
-            return (
-                "<h2>PDF Generation Failed</h2>"
-                "<p>Unable to generate PDF with wkhtmltopdf.</p>"
-                "<p>Make sure wkhtmltopdf is installed and accessible in PATH.</p>"
-                "<p><a href='/'>← Back to Form</a></p>"
-            ), 500
-
-        # Prepare response with PDF file download
-        filename_base = info.get('name', 'resume').strip().replace(' ', '_') or 'resume'
-        response = make_response(pdf)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename="{filename_base}_resume.pdf"'
-        return response
-
-    except OSError as e:
-        # wkhtmltopdf not available or not executable
-        error_msg = (
-            "<h2>PDF Generation Failed</h2>"
-            "<p>wkhtmltopdf executable could not be found or started.</p>"
-            "<p>Ensure wkhtmltopdf is installed and available in PATH (Linux-compatible)." 
-            "No Windows path is used here.</p>"
-            "<p><strong>Install instructions (Linux/Render):</strong></p>"
-            "<ul>"
-            "<li>Ubuntu/Debian: <code>sudo apt-get install wkhtmltopdf</code></li>"
-            "<li>Mac: <code>brew install wkhtmltopdf</code></li>"
-            "<li>Render: add wkhtmltopdf install step in build command or Docker image</li>"
-            "</ul>"
-            "<p><a href='/'>← Back to Form</a></p>"
-        )
-        return error_msg, 500
-
-    except Exception as e:
-        # Catch all other errors
-        error_msg = (
-            "<h2>PDF Generation Error</h2>"
-            f"<p><strong>Error:</strong> {str(e)}</p>"
-            "<p>Please check that wkhtmltopdf is properly installed.</p>"
-            "<p><a href='/'>← Back to Form</a></p>"
-        )
-        return error_msg, 500
 
 
 if __name__ == '__main__':

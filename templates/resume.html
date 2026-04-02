@@ -108,68 +108,8 @@
         </section>
         {% endif %}
 
-        <form method="post" action="{{ url_for('download') }}" class="download-form">
-          <input type="hidden" name="name" value="{{ info.name }}" />
-          <input type="hidden" name="email" value="{{ info.email }}" />
-          <input type="hidden" name="phone" value="{{ info.phone }}" />
-          <input type="hidden" name="location" value="{{ info.location }}" />
-          <input type="hidden" name="linkedin" value="{{ info.linkedin }}" />
-          <input type="hidden" name="github" value="{{ info.github }}" />
-          <input type="hidden" name="job_title" value="{{ info.job_title }}" />
-          <input type="hidden" name="summary" value="{{ info.summary }}" />
-          <input type="hidden" name="degree" value="{{ info.degree }}" />
-          <input type="hidden" name="institute" value="{{ info.institute }}" />
-          <input type="hidden" name="grad_year" value="{{ info.grad_year }}" />
-
-          {% for e in info.experience %}
-            <input type="hidden" name="exp_titles[]" value="{{ e.title }}" />
-            <input type="hidden" name="exp_companies[]" value="{{ e.company }}" />
-            <input type="hidden" name="exp_periods[]" value="{{ e.period }}" />
-            <input type="hidden" name="exp_duties[]" value="{{ e.description }}" />
-          {% endfor %}
-
-          {% for p in info.projects %}
-            <input type="hidden" name="project_titles[]" value="{{ p.title }}" />
-            <input type="hidden" name="project_descs[]" value="{{ p.description }}" />
-            <input type="hidden" name="project_links[]" value="{{ p.link }}" />
-          {% endfor %}
-
-          {% for s in info.skills %}
-            <input type="hidden" name="skills[]" value="{{ s }}" />
-          {% endfor %}
-
-          {% for c in info.certifications %}
-            <input type="hidden" name="certifications[]" value="{{ c }}" />
-          {% endfor %}
-
-          {% for e in info.extra_curricular %}
-            <input type="hidden" name="extras[]" value="{{ e }}" />
-          {% endfor %}
-
-          {% for a in info.achievements %}
-            <input type="hidden" name="achievements[]" value="{{ a }}" />
-          {% endfor %}
-
-          <button type="submit" class="button">Download Resume (PDF)</button>
+        <div class="actions">
           <a href="/" class="button secondary">Back to Form</a>
-        </form>
-
-        <p class="note"><small><strong>Note:</strong> If PDF download fails, <a href="#" onclick="downloadHTML(event)">download as HTML</a> or install wkhtmltopdf.</small></p>
+        </div>
       </div>
     </div>
-
-    <script>
-      function downloadHTML(event) {
-        event.preventDefault();
-        const html = document.documentElement.outerHTML;
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '{{ info.name or "resume" }}_resume.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    </script>
